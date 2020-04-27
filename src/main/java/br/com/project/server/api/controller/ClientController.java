@@ -29,37 +29,61 @@ import br.com.project.server.service.ClientService;
 public class ClientController {
 
 	@Autowired private ClientService clientDAO;
-	
+	/**
+	 * Método post
+	 * @param clientDTO - Objeto dto a ser processado.
+	 * @param result - Retorna os erros dos models.
+	 * @return se tudo ok retorna o status 201, se não retorna o erro 422 com os erros.
+	 */
 	@PostMapping("/create")
 	@ResponseStatus(HttpStatus.CREATED)
 	public ResponseEntity<?> create (@Valid @RequestBody ClientDTO clientDTO,BindingResult result) {
-
 		if(result.hasErrors()) return error(result.getFieldErrors());
 		clientDAO.createOrUpdate(clientDTO.createObjet(0));
 		return null;
 	}
 	
+	/**
+	 * Método put
+	 * @param id - indentificador do objeto.
+	 * @param clientDTO - Objeto a ser tratado.
+	 * @param result -validação.
+	 * @return Se tudo certo retorna o status 201, se não o 422 com os erros de validação
+	 */
 	@PutMapping("/update/{id}")
 	@ResponseStatus(HttpStatus.CREATED)
 	public ResponseEntity<?> update(@PathVariable Long id,@Valid @RequestBody ClientDTO clientDTO,BindingResult result ){
-		if(result.hasErrors()) {return error(result.getFieldErrors());}
 		
-        if(clientDAO.elementExist(id)) 
-           clientDAO.createOrUpdate(clientDTO.createObjet(id));
+		if(result.hasErrors())return error(result.getFieldErrors());
+        if(clientDAO.elementExist(id)) clientDAO.createOrUpdate(clientDTO.createObjet(id));
       
 		return null;
 	}
-		
-	@GetMapping("/read")
-	public ResponseEntity<List<Client>> read () {
+  
+   /**
+   * Método Get
+   * @return retorna a lista de objetos cadastrados ou uma lista vazia
+   */
+   @GetMapping("/read")
+   public ResponseEntity<List<Client>> read () {
 	   return  ResponseEntity.ok(clientDAO.read()); 
-	}
+   }
 	
+   /**
+    * Método Delete
+    * @param id - indentificador
+    * @return retorna o status 401 se tudo der certo, se não 500
+    */
    @DeleteMapping("/delete/{id}")
    public ResponseEntity<Void> delete(@PathVariable("id") long id){
 	   return (clientDAO.delete(id))? ResponseEntity.noContent().build(): ResponseEntity.notFound().build();
    }	
    
+   /**
+    * Método de verificação de erros
+    * @param list a lista de erros
+    * @return
+    */
    public ResponseEntity<?> error(List<FieldError> list){
 	   Map<String,String> erros = new HashMap<>();
 	   
